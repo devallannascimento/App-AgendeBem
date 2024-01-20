@@ -1,8 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.AgendeBem" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="colorPrimary">@color/corPrimaria</item>
+        <item name="colorSecondaryContainer">@color/corPrimaria</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <item name="android:statusBarColor">@color/corPrimaria</item>
+
+    </style>
+
+    <style name="Circulo">
+        <item name="cornerSize">50%</item>
     </style>
 
     <style name="Theme.AgendeBem" parent="Base.Theme.AgendeBem" />

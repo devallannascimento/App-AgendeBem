@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    //Cores personalizadas
+    <color name="corPrimaria">#1476E6</color>
+
 </resources>
