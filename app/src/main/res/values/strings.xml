@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">AgendeBem</string>
+
+    <!-- Menu -->
+    <string name="text_menu_agendar">Agendar</string>
+    <string name="text_menu_agendamentos">Agendamentos</string>
+    <string name="text_menu_perfil">Perfil</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

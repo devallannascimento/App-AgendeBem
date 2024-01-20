@@ -1,7 +1,24 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.AgendeBem" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+        <item name="colorPrimary">@color/corPrimaria</item>
+        <item name="colorSecondaryContainer">@color/corPrimaria</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <item name="android:statusBarColor">@color/corPrimaria</item>
+        <item name="actionOverflowButtonStyle">
+            @style/ActionOverflowButton
+        </item>
+
     </style>
+
+    <style name="ActionOverflowButton" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="tint">@color/white</item>
+    </style>
+
+    <style name="Circulo">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="Theme.AgendeBem" parent="Base.Theme.AgendeBem" />
 </resources>

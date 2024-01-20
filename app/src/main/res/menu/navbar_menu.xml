@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_agendar"
+        android:icon="@drawable/ic_agendar"
+        android:title="@string/text_menu_agendar" />
+
+    <item
+        android:id="@+id/menu_agendamentos"
+        android:icon="@drawable/ic_agendamentos"
+        android:title="@string/text_menu_agendamentos" />
+
+    <item
+        android:id="@+id/menu_perfil"
+        android:icon="@drawable/ic_perfil"
+        android:title="@string/text_menu_perfil"/>
+
+</menu>

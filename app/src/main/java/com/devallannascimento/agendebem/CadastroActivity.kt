@@ -43,7 +43,7 @@ class CadastroActivity : AppCompatActivity() {
 
     private fun inicializarToolbar() {
 
-        val toolbar = binding.includeToolbar.toolbarPrincipal
+        val toolbar = binding.includeToolbar.tbPrincipal
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
             title = "Faça o seu cadastro"
@@ -60,6 +60,12 @@ class CadastroActivity : AppCompatActivity() {
                 cadastrarUsuario(nome, senha, email)
             }
 
+        }
+
+        binding.textFacaLogin.setOnClickListener {
+            startActivity(
+                Intent(this, LoginActivity::class.java)
+            )
         }
     }
 
