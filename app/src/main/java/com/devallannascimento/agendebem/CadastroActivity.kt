@@ -4,11 +4,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.devallannascimento.agendebem.databinding.ActivityCadastroBinding
+import com.devallannascimento.agendebem.model.Usuario
 import com.devallannascimento.agendebem.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.firestore.FirebaseFirestore
 
 class CadastroActivity : AppCompatActivity() {
 
@@ -24,6 +26,10 @@ class CadastroActivity : AppCompatActivity() {
 
     private val firebaseAuth by lazy {
         FirebaseAuth.getInstance()
+    }
+
+    private val firestore by lazy {
+        FirebaseFirestore.getInstance()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,12 +68,19 @@ class CadastroActivity : AppCompatActivity() {
         firebaseAuth.createUserWithEmailAndPassword(
             email, senha
         ).addOnCompleteListener { result ->
-            if (result.isSuccessful) {
-                exibirMensagem("Usuário cadastrado com sucesso")
-                startActivity(
-                    Intent(applicationContext, MainActivity::class.java)
+
+            //Salvar dados Firestore
+            /*
+            id, nome, sobrenome, cpf, email, foto
+             */
+            val idUsuario = result.result.user?.uid
+            if (idUsuario != null){
+                val usuario = Usuario(
+                    idUsuario, nome, sobrenome, cpf, email
                 )
+                salvarUsuarioFirestore(usuario)
             }
+
         }.addOnFailureListener { erro ->
             try {
                 throw erro
@@ -82,6 +95,24 @@ class CadastroActivity : AppCompatActivity() {
                 exibirMensagem("E-mail invalido, digite um outro e-mail")
             }
         }
+
+    }
+
+    private fun salvarUsuarioFirestore(usuario: Usuario) {
+
+        firestore
+            .collection("usuarios")
+            .document(usuario.id)
+            .set(usuario)
+            .addOnSuccessListener {
+                exibirMensagem("Usuário cadastrado com sucesso")
+                startActivity(
+                    Intent(applicationContext, MainActivity::class.java)
+                )
+            }
+            .addOnFailureListener {
+                exibirMensagem("Erro ao cadastrar usuário")
+            }
 
     }
 
