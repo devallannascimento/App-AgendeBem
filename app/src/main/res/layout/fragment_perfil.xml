@@ -27,17 +27,18 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionButton"
+            android:id="@+id/fabSelecionar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:clickable="true"
-            app:tint="@color/white"
-            app:backgroundTint="@color/corPrimaria"
             android:src="@drawable/ic_galeria_24"
+            app:backgroundTint="@color/corPrimaria"
             app:layout_constraintBottom_toBottomOf="@+id/imgPerfil"
-            app:layout_constraintEnd_toEndOf="@+id/imgPerfil" />
+            app:layout_constraintEnd_toEndOf="@+id/imgPerfil"
+            app:tint="@color/white"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/TextInputNome"

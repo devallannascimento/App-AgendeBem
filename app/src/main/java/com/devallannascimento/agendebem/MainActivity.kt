@@ -3,13 +3,13 @@ package com.devallannascimento.agendebem
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -36,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private var temPermissaoLocalizacao = false
     private var temPermissaoNotificacoes = false
 
+    private var uriImagemSelecionada: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         inicializarToolbar()
         inicializarNavbar()
         solicitarPermissoes()
+        loadFragment(AgendarFragment())
 
     }
 
@@ -110,7 +113,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        loadFragment(AgendarFragment())
     }
 
     private fun inicializarToolbar() {

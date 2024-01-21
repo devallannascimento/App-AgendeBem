@@ -2,10 +2,17 @@ package com.devallannascimento.agendebem.utils
 
 import android.app.Activity
 import android.widget.Toast
-import android.widget.Toolbar
+import androidx.fragment.app.Fragment
 
 fun Activity.exibirMensagem(mensagem: String){
     Toast.makeText(this,
+        mensagem,
+        Toast.LENGTH_LONG
+    ).show()
+}
+
+fun Fragment.exibirMensagem(mensagem: String){
+    Toast.makeText(requireContext(),
         mensagem,
         Toast.LENGTH_LONG
     ).show()
