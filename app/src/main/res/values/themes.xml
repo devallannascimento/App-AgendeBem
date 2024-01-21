@@ -16,8 +16,12 @@
         <item name="tint">@color/white</item>
     </style>
 
-    <style name="Circulo">
+    <style name="Redondo">
         <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="CantosArredondados">
+        <item name="cornerSize">15%</item>
     </style>
 
     <style name="Theme.AgendeBem" parent="Base.Theme.AgendeBem" />
