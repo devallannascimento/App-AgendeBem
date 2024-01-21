@@ -41,7 +41,7 @@
             tools:ignore="SpeakableTextPresentCheck" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/TextInputNome"
+            android:id="@+id/textInputNome"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -55,13 +55,11 @@
                 android:id="@+id/editNome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
-                android:hint="Nome"
-                android:text="Állan" />
+                android:hint="Nome" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/TextInputSobrenome"
+            android:id="@+id/textInputSobrenome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -70,20 +68,18 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TextInputNome"
+            app:layout_constraintTop_toBottomOf="@+id/textInputNome"
             app:layout_constraintVertical_bias="0.0">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editSobrenome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
-                android:hint="Último nome"
-                android:text="Santos" />
+                android:hint="Sobrenome" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/TextInputEmail"
+            android:id="@+id/textInputEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -92,20 +88,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TextInputSobrenome">
+            app:layout_constraintTop_toBottomOf="@+id/textInputSobrenome">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
                 android:hint="E-mail"
-                android:inputType="textEmailAddress"
-                android:text="allannascimento@gmail.com" />
+                android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/TextInputCpf"
+            android:id="@+id/textInputCpf"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -113,19 +107,18 @@
             android:layout_marginEnd="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TextInputEmail">
+            app:layout_constraintTop_toBottomOf="@+id/textInputEmail">
 
             <EditText
                 android:id="@+id/editCpf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
                 android:hint="CPF"
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/TextInputNascimento"
+            android:id="@+id/textInputNascimento"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -133,19 +126,18 @@
             android:layout_marginEnd="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TextInputCpf">
+            app:layout_constraintTop_toBottomOf="@+id/textInputCpf">
 
             <EditText
                 android:id="@+id/editNascimento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
                 android:hint="Data de nascimento"
                 android:inputType="datetime|date" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/TextInputTelefone"
+            android:id="@+id/textInputTelefone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -153,7 +145,7 @@
             android:layout_marginEnd="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/TextInputNascimento">
+            app:layout_constraintTop_toBottomOf="@id/textInputNascimento">
 
             <EditText
                 android:id="@+id/editTelefone"
@@ -173,7 +165,7 @@
             android:text="Salvar alterações"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TextInputTelefone" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputTelefone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
