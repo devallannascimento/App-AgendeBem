@@ -1,13 +1,18 @@
 package com.devallannascimento.agendebem
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import com.devallannascimento.agendebem.databinding.ActivityMainBinding
@@ -26,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         FirebaseAuth.getInstance()
     }
 
+    private var temPermissaoCamera = false
+    private var temPermissaoGaleria = false
+    private var temPermissaoLocalizacao = false
+    private var temPermissaoNotificacoes = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -34,8 +44,69 @@ class MainActivity : AppCompatActivity() {
 
         inicializarToolbar()
         inicializarNavbar()
+        solicitarPermissoes()
 
     }
+
+    private fun solicitarPermissoes() {
+
+        //Verificar se o usuário já tem permissão\
+        temPermissaoCamera = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        temPermissaoGaleria = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_MEDIA_IMAGES
+        ) == PackageManager.PERMISSION_GRANTED
+
+        temPermissaoLocalizacao = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        temPermissaoNotificacoes = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        //Lista permissoões negadas
+        val listaPermissoesNegadas = mutableListOf<String>()
+        if (!temPermissaoCamera) {
+            listaPermissoesNegadas.add(Manifest.permission.CAMERA)
+        }
+        if (!temPermissaoGaleria) {
+            listaPermissoesNegadas.add(Manifest.permission.READ_MEDIA_IMAGES)
+        }
+        if (!temPermissaoLocalizacao) {
+            listaPermissoesNegadas.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+        if (!temPermissaoNotificacoes) {
+            listaPermissoesNegadas.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        if (listaPermissoesNegadas.isNotEmpty()){
+            //Solicitar multiplas permissões
+            val gerenciadorPermissoes = registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions()
+            ){ permissoes ->
+
+                temPermissaoCamera = permissoes[Manifest.permission.CAMERA]
+                    ?: temPermissaoCamera
+
+                temPermissaoGaleria = permissoes[Manifest.permission.READ_MEDIA_IMAGES]
+                    ?: temPermissaoGaleria
+
+                temPermissaoLocalizacao = permissoes[Manifest.permission.ACCESS_COARSE_LOCATION]
+                    ?: temPermissaoLocalizacao
+
+                temPermissaoNotificacoes = permissoes[Manifest.permission.POST_NOTIFICATIONS]
+                    ?: temPermissaoNotificacoes
+            }
+            gerenciadorPermissoes.launch(listaPermissoesNegadas.toTypedArray())
+        }
+        }
 
     override fun onStart() {
         super.onStart()
