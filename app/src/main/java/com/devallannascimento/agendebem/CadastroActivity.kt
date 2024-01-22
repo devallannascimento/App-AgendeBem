@@ -3,10 +3,14 @@ package com.devallannascimento.agendebem
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import com.devallannascimento.agendebem.MainActivity.Companion.TAG
 import com.devallannascimento.agendebem.databinding.ActivityCadastroBinding
 import com.devallannascimento.agendebem.model.Usuario
 import com.devallannascimento.agendebem.utils.exibirMensagem
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
@@ -18,17 +22,19 @@ class CadastroActivity : AppCompatActivity() {
         ActivityCadastroBinding.inflate(layoutInflater)
     }
 
-    private lateinit var nome: String
-    private lateinit var sobrenome: String
-    private lateinit var cpf: String
-    private lateinit var email: String
-    private lateinit var senha: String
+    private lateinit var nomeUsuario: String
+    private lateinit var sobrenomeUsuario: String
+    private lateinit var cpfUsuario: String
+    private lateinit var emailUsuario: String
+    private lateinit var nascimentoUsuario: String
+    private lateinit var telefoneUsuario: String
+    private lateinit var senhaUsuario: String
 
     private val firebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
 
-    private val firestore by lazy {
+    private val firebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
 
@@ -56,8 +62,17 @@ class CadastroActivity : AppCompatActivity() {
     private fun inicializarEventosClique() {
 
         binding.btnCadastrar.setOnClickListener {
+            Log.i(TAG, "inicializarEventosClique: 1")
             if (validarCampos()) {
-                cadastrarUsuario(nome, senha, email)
+                cadastrarUsuario(
+                    nomeUsuario,
+                    sobrenomeUsuario,
+                    emailUsuario,
+                    cpfUsuario,
+                    nascimentoUsuario,
+                    telefoneUsuario,
+                    senhaUsuario
+                )
             }
 
         }
@@ -69,36 +84,61 @@ class CadastroActivity : AppCompatActivity() {
         }
     }
 
-    private fun cadastrarUsuario(nome: String, senha: String, email: String) {
+    private fun cadastrarUsuario(
+        nome: String,
+        sobrenome: String,
+        email: String,
+        cpf: String,
+        nascimento: String,
+        telefone: String,
+        senha: String
+    ) {
+
+        Log.i(TAG, "cadastrarUsuario: 1")
 
         firebaseAuth.createUserWithEmailAndPassword(
             email, senha
-        ).addOnCompleteListener { result ->
+        ).addOnSuccessListener { result ->
+
+            Log.i(TAG, "cadastrarUsuario: 2")
 
             //Salvar dados Firestore
             /*
             id, nome, sobrenome, cpf, email, foto
              */
-            val idUsuario = result.result.user?.uid
-            if (idUsuario != null){
+            val idUsuario = firebaseAuth.currentUser?.uid
+            if (idUsuario != null) {
                 val usuario = Usuario(
-                    idUsuario, nome, sobrenome, cpf, email
+                    idUsuario, nome, sobrenome, email, cpf, nascimento, telefone
                 )
                 salvarUsuarioFirestore(usuario)
             }
 
         }.addOnFailureListener { erro ->
-            try {
-                throw erro
-            } catch (erroSenhaFraca: FirebaseAuthWeakPasswordException) {
-                erroSenhaFraca.printStackTrace()
-                exibirMensagem("Senha muito fraca, digite outra com mais forte")
-            } catch (erroUsuarioExistente: FirebaseAuthUserCollisionException) {
-                erroUsuarioExistente.printStackTrace()
-                exibirMensagem("E-mail já cadastrado")
-            } catch (erroCredenciaisInvalidas: FirebaseAuthInvalidCredentialsException) {
-                erroCredenciaisInvalidas.printStackTrace()
-                exibirMensagem("E-mail invalido, digite um outro e-mail")
+            when (erro) {
+                is FirebaseAuthWeakPasswordException -> {
+                    erro.printStackTrace()
+                    exibirMensagem("Senha muito fraca, digite outra com mais forte")
+                }
+                is FirebaseAuthUserCollisionException -> {
+                    erro.printStackTrace()
+                    exibirMensagem("E-mail já cadastrado")
+                }
+                is FirebaseAuthInvalidCredentialsException -> {
+                    erro.printStackTrace()
+                    exibirMensagem("E-mail invalido, digite um outro e-mail")
+                }
+                is FirebaseAuthEmailException -> {
+                    erro.printStackTrace()
+                    exibirMensagem("Erro ao tentar usar este e-mail, tente com um outro e-mail")
+                }
+                is FirebaseNetworkException -> {
+                    erro.printStackTrace()
+                    exibirMensagem("Erro! Tente novamente")
+                }
+                else -> {
+                    exibirMensagem("Erro desconhecido")
+                }
             }
         }
 
@@ -106,11 +146,14 @@ class CadastroActivity : AppCompatActivity() {
 
     private fun salvarUsuarioFirestore(usuario: Usuario) {
 
-        firestore
+        Log.i(TAG, "salvarUsuarioFirestore: 1 ")
+
+        firebaseFirestore
             .collection("usuarios")
             .document(usuario.id)
             .set(usuario)
             .addOnSuccessListener {
+
                 exibirMensagem("Usuário cadastrado com sucesso")
                 startActivity(
                     Intent(applicationContext, MainActivity::class.java)
@@ -124,25 +167,39 @@ class CadastroActivity : AppCompatActivity() {
 
     private fun validarCampos(): Boolean {
 
-        nome = binding.editNome.text.toString()
-        sobrenome = binding.editSobrenome.text.toString()
-        cpf = binding.editCpf.text.toString()
-        email = binding.editEmail.text.toString()
-        senha = binding.editSenha.text.toString()
+        nomeUsuario = binding.editNome.text.toString()
+        sobrenomeUsuario = binding.editSobrenome.text.toString()
+        emailUsuario = binding.editEmail.text.toString()
+        cpfUsuario = binding.editCpf.text.toString()
+        nascimentoUsuario = binding.editNascimento.text.toString()
+        telefoneUsuario = binding.editTelefone.text.toString()
+        senhaUsuario = binding.editSenha.text.toString()
 
-        if (nome.isNotEmpty()) {
+        if (nomeUsuario.isNotEmpty()) {
             binding.textInputNome.error = null
-            if (sobrenome.isNotEmpty()) {
+            if (sobrenomeUsuario.isNotEmpty()) {
                 binding.textInputSobrenome.error = null
-                if (cpf.isNotEmpty()) {
+                if (cpfUsuario.isNotEmpty()) {
                     binding.textInputCpf.error = null
-                    if (email.isNotEmpty()) {
+                    if (emailUsuario.isNotEmpty()) {
                         binding.textInputEmail.error = null
-                        if (senha.isNotEmpty()) {
-                            binding.textInputSenha.error = null
-                            return true
+                        if (nascimentoUsuario.isNotEmpty()) {
+                            binding.textInputNascimento.error = null
+                            if (telefoneUsuario.isNotEmpty()) {
+                                binding.textInputTelefone.error = null
+                                if (senhaUsuario.isNotEmpty()){
+                                    binding.textInputSenha.error = null
+                                    return true
+                                }else{
+                                    binding.textInputSenha.error = "Preencha a sua senha!"
+                                    return false
+                                }
+                            } else {
+                                binding.textInputTelefone.error = "Preencha o seu telefone!"
+                                return false
+                            }
                         } else {
-                            binding.textInputSenha.error = "Preencha o seu senha!"
+                            binding.textInputNascimento.error = "Preencha o seu nascimento!"
                             return false
                         }
                     } else {

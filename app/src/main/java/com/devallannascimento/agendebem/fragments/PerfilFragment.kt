@@ -114,7 +114,7 @@ class PerfilFragment : Fragment() {
     private fun inicializarEventosClique() {
 
         this.binding.fabSelecionar.setOnClickListener {
-            if (!temPermissaoGaleria) {
+            if (temPermissaoGaleria) {
                 getContent.launch("image/*")
             } else {
                 exibirMensagem("Não tem permisssão para acessar a galeria")
@@ -183,8 +183,6 @@ class PerfilFragment : Fragment() {
     }
 
     private fun atualizarDadosPerfil(idUsuario: String, dados: Map<String, String>) {
-
-
         firebaseFirestore.collection("usuarios")
             .document(idUsuario)
             .update(dados)
@@ -222,7 +220,7 @@ class PerfilFragment : Fragment() {
                                 return false
                             }
                         } else {
-                            binding.textInputNascimento.error = "Preencha o seu email!"
+                            binding.textInputNascimento.error = "Preencha o seu nascimento!"
                             return false
                         }
                     } else {

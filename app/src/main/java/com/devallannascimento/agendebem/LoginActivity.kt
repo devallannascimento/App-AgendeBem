@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
     private fun verificarUsuarioLogado() {
         val usuarioAtual = firebaseAuth.currentUser
 
-        if (usuarioAtual != null){
+        if (usuarioAtual != null) {
             startActivity(
                 Intent(this, MainActivity::class.java)
             )
@@ -74,17 +74,24 @@ class LoginActivity : AppCompatActivity() {
                 Intent(this, MainActivity::class.java)
             )
         }.addOnFailureListener { error ->
-            try {
-                throw error
-            } catch (erroUsuarioInvalido: FirebaseAuthInvalidUserException) {
-                erroUsuarioInvalido.printStackTrace()
-                exibirMensagem("E-mail não cadastrado")
-            } catch (erroSenhaInvalida: FirebaseAuthInvalidCredentialsException) {
-                erroSenhaInvalida.printStackTrace()
-                exibirMensagem("E-mail ou senha estão incorretos!")
+            when (error) {
+                is FirebaseAuthInvalidUserException -> {
+                    error.printStackTrace()
+                    exibirMensagem("E-mail não cadastrado")
+                }
+                is FirebaseAuthInvalidUserException -> {
+                    error.printStackTrace()
+                    exibirMensagem("E-mail não cadastrado")
+                }
+                is FirebaseAuthInvalidCredentialsException -> {
+                    error.printStackTrace()
+                    exibirMensagem("E-mail ou senha estão incorretos!")
+                }
+                else -> {
+                    exibirMensagem("Erro desconhecido")
+                }
             }
         }
-
     }
 
     private fun validarCampos(): Boolean {

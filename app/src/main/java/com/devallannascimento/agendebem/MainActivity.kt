@@ -22,6 +22,10 @@ import com.devallannascimento.agendebem.fragments.PerfilFragment
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
+    
+    companion object {
+        const val TAG = "info_app"
+    }
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -41,8 +45,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        Log.i("info_app", "onCreate: sucesso ")
 
         inicializarToolbar()
         inicializarNavbar()
