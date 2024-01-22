@@ -71,9 +71,13 @@ class PerfilFragment : Fragment() {
 
         solicitarPermissoes()
         inicializarEventosClique()
-        recuperarDadosUsuario()
 
         return this.binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        recuperarDadosUsuario()
     }
 
     private fun solicitarPermissoes() {
