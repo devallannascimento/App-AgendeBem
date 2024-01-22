@@ -33,6 +33,8 @@ class PerfilFragment : Fragment() {
         FirebaseStorage.getInstance()
     }
 
+    private var idUsuario: String? = null
+
     private lateinit var nomeUsuario: String
     private lateinit var sobrenomeUsuario: String
     private lateinit var emailUsuario: String
@@ -62,12 +64,14 @@ class PerfilFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         this.perfilBinding = FragmentPerfilBinding.inflate(inflater, container, false)
+
+        idUsuario = firebaseAuth.currentUser?.uid
 
         solicitarPermissoes()
         inicializarEventosClique()
-        //recuperarImagemFirebase()
+        recuperarDadosUsuario()
 
         return this.binding.root
     }
@@ -242,39 +246,35 @@ class PerfilFragment : Fragment() {
     }
 
     private fun recuperarDadosUsuario() {
-        val idUsuario = firebaseAuth.currentUser?.uid
+
         if (idUsuario != null) {
-            val usuario = firebaseFirestore
+            firebaseFirestore
                 .collection("usuarios")
-                .document(idUsuario)
+                .document(idUsuario!!)
+                .get()
+                .addOnSuccessListener {documentSnapshot ->
+                    val dadosUsuario = documentSnapshot.data
+                    if (dadosUsuario != null) {
+                        val nome = dadosUsuario["nome"] as String
+                        val sobrenome = dadosUsuario["sobrenome"] as String
+                        val email = dadosUsuario["email"] as String
+                        val cpf = dadosUsuario["cpf"] as String
+                        val nascimento = dadosUsuario["nascimento"] as String
+                        val telefone = dadosUsuario["telefone"] as String
+                        val foto = dadosUsuario["foto"] as String
 
-            usuario.get()
-                .addOnCompleteListener {task ->
-                    if (task.isSuccessful){
-                        val document = task.result
-                        if (document.exists()){
-                            val nome = document.getString("nome")
-                            nomeUsuario = nome.toString()
-
-                            val sobrenome = document.getString("sobrenome")
-                            sobrenomeUsuario = sobrenome.toString()
-
-                            val email = document.getString("email")
-                            emailUsuario = email.toString()
-
-                            val cpf = document.getString("cpf")
-                            cpfUsuario = cpf.toString()
-
-                            val nascimento = document.getString("nascimento")
-                            nascimentoUsuario = nascimento.toString()
-
-                            val telefone = document.getString("telefone")
-                            telefoneUsuario = telefone.toString()
-
-                            val foto = document.getString("telefone")
-                            fotoUsuario = foto.toString()
-
+                        binding.editNome.setText(nome)
+                        binding.editSobrenome.setText(sobrenome)
+                        binding.editEmail.setText(email)
+                        binding.editCpf.setText(cpf)
+                        binding.editNascimento.setText(nascimento)
+                        binding.editTelefone.setText(telefone)
+                        if (foto.isNotEmpty()){
+                            Picasso.get()
+                                .load(foto)
+                                .into(binding.imgPerfil)
                         }
+
                     }
                 }
         }
