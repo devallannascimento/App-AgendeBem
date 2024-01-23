@@ -4,19 +4,24 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.devallannascimento.agendebem.utils.exibirMensagem
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.devallannascimento.agendebem.R
 import com.devallannascimento.agendebem.databinding.FragmentPerfilBinding
+import com.devallannascimento.agendebem.utils.exibirMensagem
+import com.devallannascimento.agendebem.utils.restartFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.squareup.picasso.Picasso
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class PerfilFragment : Fragment() {
 
@@ -41,9 +46,7 @@ class PerfilFragment : Fragment() {
     private lateinit var cpfUsuario: String
     private lateinit var nascimentoUsuario: String
     private lateinit var telefoneUsuario: String
-    private lateinit var fotoUsuario: String
 
-    private var temPermissaoCamera = false
     private var temPermissaoGaleria = false
 
     private var uriImagemSelecionada: Uri? = null
@@ -66,58 +69,34 @@ class PerfilFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         this.perfilBinding = FragmentPerfilBinding.inflate(inflater, container, false)
-
         idUsuario = firebaseAuth.currentUser?.uid
 
-        solicitarPermissoes()
+        solicitarPermissao()
         inicializarEventosClique()
+        recuperarDadosUsuario()
 
         return this.binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
-        recuperarDadosUsuario()
-    }
-
-    private fun solicitarPermissoes() {
-
-        //Verificar se o usuário já tem permissão
-        temPermissaoCamera = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-
+    private fun solicitarPermissao() {
+        // Verificar se o usuário já tem permissão
         temPermissaoGaleria = ContextCompat.checkSelfPermission(
             requireContext(),
-            Manifest.permission.READ_MEDIA_IMAGES
+            Manifest.permission.READ_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
 
-        //Lista permissoões negadas
-        val listaPermissoesNegadas = mutableListOf<String>()
-        if (!temPermissaoCamera) {
-            listaPermissoesNegadas.add(Manifest.permission.CAMERA)
-        }
+        // Se não tiver permissão, solicitar
         if (!temPermissaoGaleria) {
-            listaPermissoesNegadas.add(Manifest.permission.READ_MEDIA_IMAGES)
-        }
+            val gerenciadorPermissoes =
+                registerForActivityResult(ActivityResultContracts.RequestPermission()) { resultado ->
+                    temPermissaoGaleria = resultado
+                }
 
-        if (listaPermissoesNegadas.isNotEmpty()) {
-            //Solicitar multiplas permissões
-            val gerenciadorPermissoes = registerForActivityResult(
-                ActivityResultContracts.RequestMultiplePermissions()
-            ) { permissoes ->
-
-                temPermissaoCamera = permissoes[Manifest.permission.CAMERA]
-                    ?: temPermissaoCamera
-
-                temPermissaoGaleria = permissoes[Manifest.permission.READ_MEDIA_IMAGES]
-                    ?: temPermissaoGaleria
-
-            }
-            gerenciadorPermissoes.launch(listaPermissoesNegadas.toTypedArray())
+            gerenciadorPermissoes.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
     }
+
+
 
     private fun inicializarEventosClique() {
 
@@ -130,11 +109,9 @@ class PerfilFragment : Fragment() {
         }
 
         this.binding.btnSalvar.setOnClickListener {
-
             val idUsuario = firebaseAuth.currentUser?.uid
             if (validarCampos()) {
                 if (idUsuario != null) {
-
                     val dados = mapOf(
                         "nome" to nomeUsuario,
                         "sobrenome" to sobrenomeUsuario,
@@ -144,7 +121,7 @@ class PerfilFragment : Fragment() {
                         "telefone" to telefoneUsuario
                     )
                     atualizarDadosPerfil(idUsuario, dados)
-
+                    restartFragment()
                 } else {
                     exibirMensagem("Preencha todos os campos para atualizar")
                 }
@@ -170,24 +147,13 @@ class PerfilFragment : Fragment() {
                             val dados = mapOf(
                                 "foto" to url.toString()
                             )
-                            atualizarFotoPerfil(idUsuario, dados)
+                            atualizarDadosPerfil(idUsuario, dados)
                         }
                     exibirMensagem("Sucesso ao fazer upload")
                 }.addOnFailureListener {
                     exibirMensagem("Erro ao fazer upload")
                 }
         }
-    }
-
-    private fun atualizarFotoPerfil(idUsuario: String, dados: Map<String, String>) {
-        firebaseFirestore.collection("usuarios")
-            .document(idUsuario)
-            .update(dados)
-            .addOnSuccessListener {
-                exibirMensagem("Sucesso ao atualizar perfil do usuário")
-            }.addOnFailureListener {
-                exibirMensagem("Erro ao atualizar perfil do usuário")
-            }
     }
 
     private fun atualizarDadosPerfil(idUsuario: String, dados: Map<String, String>) {
@@ -202,61 +168,38 @@ class PerfilFragment : Fragment() {
     }
 
     private fun validarCampos(): Boolean {
+        val campos = listOf(
+            binding.editNome to "nome",
+            binding.editSobrenome to "sobrenome",
+            binding.editCpf to "CPF",
+            binding.editEmail to "email",
+            binding.editNascimento to "nascimento",
+            binding.editTelefone to "telefone"
+        )
 
-        nomeUsuario = binding.editNome.text.toString()
-        sobrenomeUsuario = binding.editSobrenome.text.toString()
-        emailUsuario = binding.editEmail.text.toString()
-        cpfUsuario = binding.editCpf.text.toString()
-        nascimentoUsuario = binding.editNascimento.text.toString()
-        telefoneUsuario = binding.editTelefone.text.toString()
-
-        if (nomeUsuario.isNotEmpty()) {
-            binding.textInputNome.error = null
-            if (sobrenomeUsuario.isNotEmpty()) {
-                binding.textInputSobrenome.error = null
-                if (cpfUsuario.isNotEmpty()) {
-                    binding.textInputCpf.error = null
-                    if (emailUsuario.isNotEmpty()) {
-                        binding.textInputEmail.error = null
-                        if (nascimentoUsuario.isNotEmpty()) {
-                            binding.textInputNascimento.error = null
-                            if (telefoneUsuario.isNotEmpty()) {
-                                binding.textInputTelefone.error = null
-                                return true
-                            } else {
-                                binding.textInputTelefone.error = "Preencha o seu telefone!"
-                                return false
-                            }
-                        } else {
-                            binding.textInputNascimento.error = "Preencha o seu nascimento!"
-                            return false
-                        }
-                    } else {
-                        binding.textInputEmail.error = "Preencha o seu email!"
-                        return false
-                    }
-                } else {
-                    binding.textInputCpf.error = "Preencha o seu CPF!"
-                    return false
-                }
-            } else {
-                binding.textInputSobrenome.error = "Preencha o seu sobrenome!"
+        for ((campo, descricaoCampo) in campos) {
+            val valorCampo = campo.text.toString().trim()
+            if (valorCampo.isEmpty()) {
+                campo.error = "Preencha o seu $descricaoCampo!"
                 return false
+            } else {
+                campo.error = null
             }
-        } else {
-            binding.textInputNome.error = "Preencha o seu nome!"
-            return false
         }
+
+        return true
     }
 
     private fun recuperarDadosUsuario() {
-
         if (idUsuario != null) {
-            firebaseFirestore
-                .collection("usuarios")
-                .document(idUsuario!!)
-                .get()
-                .addOnSuccessListener {documentSnapshot ->
+            lifecycleScope.launch {
+                try {
+                    val documentSnapshot = firebaseFirestore
+                        .collection("usuarios")
+                        .document(idUsuario!!)
+                        .get()
+                        .await()
+
                     val dadosUsuario = documentSnapshot.data
                     if (dadosUsuario != null) {
                         val nome = dadosUsuario["nome"] as String
@@ -273,14 +216,20 @@ class PerfilFragment : Fragment() {
                         binding.editCpf.setText(cpf)
                         binding.editNascimento.setText(nascimento)
                         binding.editTelefone.setText(telefone)
-                        if (foto.isNotEmpty()){
-                            Picasso.get()
-                                .load(foto)
-                                .into(binding.imgPerfil)
-                        }
 
+                        // Carregar a imagem utilizando Glide
+                        Glide.with(this@PerfilFragment)
+                            .load(foto)
+                            .centerCrop()
+                            .placeholder(R.drawable.perfil)
+                            .error(R.drawable.perfil)
+                            .into(binding.imgPerfil)
                     }
+                } catch (e: Exception) {
+                    // Lidar com exceções, se necessário
+                    e.printStackTrace()
                 }
+            }
         }
     }
 }

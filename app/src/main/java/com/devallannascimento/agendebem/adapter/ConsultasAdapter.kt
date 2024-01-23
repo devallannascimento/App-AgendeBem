@@ -22,7 +22,7 @@ class ConsultasAdapter : RecyclerView.Adapter<ConsultasAdapter.ConsultaViewHolde
         fun bind(consulta: Consulta) {
             // Vincule os dados aos elementos de layout aqui
             binding.textDoutor.text = consulta.medico
-            binding.textCRM.text = "${consulta.crm} - ${consulta.especialidae}"
+            binding.textCRM.text = "${consulta.crm} - ${consulta.especialidade}"
             binding.textValor.text = "R$ ${consulta.valor}"
             binding.textDataEHora.text = "${consulta.data} às ${consulta.hora}"
             // Adicione outros vínculos conforme necessário
@@ -42,6 +42,11 @@ class ConsultasAdapter : RecyclerView.Adapter<ConsultasAdapter.ConsultaViewHolde
     override fun onBindViewHolder(holder: ConsultaViewHolder, position: Int) {
         val consulta = consultasList[position]
         holder.bind(consulta)
+    }
+
+    // Adicione um método para obter uma consulta com base na posição
+    fun getConsulta(position: Int): Consulta {
+        return consultasList[position]
     }
 
     override fun getItemCount(): Int {

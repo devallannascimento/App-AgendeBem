@@ -11,6 +11,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -112,10 +113,6 @@ class MainActivity : AppCompatActivity() {
         }
         }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     private fun inicializarToolbar() {
         val toolbar = binding.includeMainToolbar.tbPrincipal
         setSupportActionBar(toolbar)
@@ -170,7 +167,6 @@ class MainActivity : AppCompatActivity() {
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentConteudo, fragment)
-            .addToBackStack(null)
             .commit()
     }
 
