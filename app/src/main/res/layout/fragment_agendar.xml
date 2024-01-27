@@ -15,7 +15,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:paddingStart="8dp"
-        android:text="Especialidades"
+        android:text="Selecione a especialidade desejada:"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,9 +24,10 @@
         android:id="@+id/spinnerEspecialidades"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:dropDownWidth="match_parent"
         android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="16dp"
+        android:dropDownWidth="match_parent"
+        android:spinnerMode="dropdown"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textEspecialidade" />

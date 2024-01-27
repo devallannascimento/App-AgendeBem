@@ -50,18 +50,40 @@ class LoginActivity : AppCompatActivity() {
 
     private fun inicializarCliques() {
 
-        binding.textRegistro.setOnClickListener {
-            startActivity(
-                Intent(this, CadastroActivity::class.java)
-            )
-        }
-
         binding.btnLogin.setOnClickListener {
             if (validarCampos()) {
                 logarUsuario()
             }
         }
 
+        binding.textRecuperar.setOnClickListener {
+            val email = binding.editEmail.text.toString().trim()
+            if (email.isNotEmpty()) {
+                binding.textInputEmail.error = null
+                enviarEmailRecuperacao(email)
+            } else {
+                binding.textInputEmail.error = "Preencha o seu email!"
+                exibirMensagem("Digite um endereço de e-mail válido.")
+            }
+        }
+
+        binding.textRegistro.setOnClickListener {
+            startActivity(
+                Intent(this, CadastroActivity::class.java)
+            )
+        }
+
+    }
+
+    private fun enviarEmailRecuperacao(email: String) {
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    exibirMensagem("Email de recuperação enviado. Verifique sua caixa de entrada.")
+                } else {
+                    exibirMensagem("Falha ao enviar email de recuperação. Verifique o endereço de e-mail.")
+                }
+            }
     }
 
     private fun logarUsuario() {
@@ -79,14 +101,17 @@ class LoginActivity : AppCompatActivity() {
                     error.printStackTrace()
                     exibirMensagem("E-mail não cadastrado")
                 }
+
                 is FirebaseAuthInvalidUserException -> {
                     error.printStackTrace()
                     exibirMensagem("E-mail não cadastrado")
                 }
+
                 is FirebaseAuthInvalidCredentialsException -> {
                     error.printStackTrace()
                     exibirMensagem("E-mail ou senha estão incorretos!")
                 }
+
                 else -> {
                     exibirMensagem("Erro desconhecido")
                 }

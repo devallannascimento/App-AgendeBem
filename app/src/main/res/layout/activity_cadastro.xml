@@ -110,12 +110,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputEmail">
 
-        <EditText
+        <com.santalu.maskara.widget.MaskEditText
             android:id="@+id/editCpf"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="CPF"
-            android:inputType="number" />
+            android:inputType="number"
+            app:mask="___.___.___-__"
+            app:maskCharacter="_"
+            app:maskStyle="normal"
+            android:maxLength="13"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -129,12 +133,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputCpf">
 
-        <EditText
+        <com.santalu.maskara.widget.MaskEditText
             android:id="@+id/editNascimento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Data de nascimento"
-            android:inputType="datetime|date"/>
+            android:inputType="datetime|date"
+            app:mask="__/__/____"
+            app:maskCharacter="_"
+            app:maskStyle="normal"
+            android:maxLength="10"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -148,12 +156,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textInputNascimento">
 
-        <EditText
+        <com.santalu.maskara.widget.MaskEditText
             android:id="@+id/editTelefone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Telefone"
-            android:inputType="phone" />
+            android:inputType="phone"
+            app:mask="(__) _____-____"
+            app:maskCharacter="_"
+            app:maskStyle="normal"
+            android:maxLength="15"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -173,7 +185,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Senha"
-            android:inputType="text|textPassword" />
+            android:inputType="text|textPassword"
+            tools:ignore="MissingClass"
+            app:mask=""/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

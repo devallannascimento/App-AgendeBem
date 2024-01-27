@@ -2,7 +2,6 @@ package com.devallannascimento.agendebem.fragments
 
 import ConsultasAdapter
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -11,11 +10,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.devallannascimento.agendebem.MainActivity
 import com.devallannascimento.agendebem.databinding.FragmentAgendamentosBinding
 import com.devallannascimento.agendebem.model.Consulta
-import com.devallannascimento.agendebem.MainActivity.Companion.TAG
-import com.devallannascimento.agendebem.utils.restartFragment
+import com.devallannascimento.agendebem.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -39,7 +36,7 @@ class AgendamentosFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         this.agendamentosBinding = FragmentAgendamentosBinding.inflate(inflater, container, false)
 
         recuperarConsultas()
@@ -49,9 +46,7 @@ class AgendamentosFragment : Fragment() {
 
     private fun recuperarConsultas() {
 
-        Log.i(TAG, "recuperarConsultas: iniciado ")
-
-        if (idUsuario != null){
+        if (idUsuario != null) {
             val consultasCollection = firebaseFirestore
                 .collection("usuarios")
                 .document(idUsuario)
@@ -79,58 +74,45 @@ class AgendamentosFragment : Fragment() {
                             consultasList.add(consulta)
                         }
                     }
-                    // Agora, após recuperar os dados, inicialize o RecyclerView
                     inicializarRecyclerView(consultasList)
-                }
-                .addOnFailureListener { exception ->
-                    // Lidar com falhas na recuperação dos documentos
-                    Log.e(MainActivity.TAG, "Erro ao obter documentos: $exception")
                 }
         }
 
     }
 
     private fun inicializarRecyclerView(consultasList: List<Consulta>) {
-        // Configurar o RecyclerView
+
         val recyclerView: RecyclerView = binding.recyclerViewConsultas
+        if (consultasList.isEmpty()) {
+            binding.textHistoricoVazio.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+        } else {
+            val layoutManager = LinearLayoutManager(requireContext())
+            recyclerView.layoutManager = layoutManager
+            recyclerView.adapter = consultasAdapter
+            consultasAdapter.atualizarConsultas(consultasList)
 
-        // Crie e configure um LinearLayoutManager (ou GridLayoutManager, se preferir)
-        val layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.layoutManager = layoutManager
+            recyclerView.addOnItemTouchListener(
+                object : RecyclerView.OnItemTouchListener {
+                    override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
 
-        // Use o adaptador já declarado como uma propriedade da classe
-        recyclerView.adapter = consultasAdapter
-
-        // Agora atualize o adaptador com as consultas
-        consultasAdapter.atualizarConsultas(consultasList)
-
-        // Configurar o ItemClickListener para o RecyclerView
-        recyclerView.addOnItemTouchListener(
-            object : RecyclerView.OnItemTouchListener {
-                override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-                    // Não é necessário implementar neste exemplo
-                }
-
-                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                    val child = rv.findChildViewUnder(e.x, e.y)
-                    if (child != null && e.action == MotionEvent.ACTION_UP) {
-                        val position = rv.getChildAdapterPosition(child)
-                        // Lidar com o clique no item
-                        exibirDialogoConfirmacao(position)
+                    override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                        val child = rv.findChildViewUnder(e.x, e.y)
+                        if (child != null && e.action == MotionEvent.ACTION_UP) {
+                            val position = rv.getChildAdapterPosition(child)
+                            exibirDialogoConfirmacao(position)
+                        }
+                        return false
                     }
-                    return false
-                }
 
-                override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-                    // Não é necessário implementar neste exemplo
+                    override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
                 }
-            }
-        )
+            )
+        }
 
     }
 
-    // Dentro da função exibirDialogoConfirmacao
-    fun exibirDialogoConfirmacao(position: Int) {
+    private fun exibirDialogoConfirmacao(position: Int) {
 
         val consultaSelecionada = consultasAdapter.getConsulta(position)
         val id = consultaSelecionada.id
@@ -140,7 +122,7 @@ class AgendamentosFragment : Fragment() {
         val data = consultaSelecionada.data
         val hora = consultaSelecionada.hora
         val valor = consultaSelecionada.valor
-        val disponivel = consultaSelecionada.disponivel
+        consultaSelecionada.disponivel
 
         val consulta = Consulta(
             id,
@@ -156,11 +138,11 @@ class AgendamentosFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Deseja cancelar a consulta?")
             .setMessage("\nConfirmar o cancelamento da consulta de $especialidade para o dia:\n\n$data às $hora?")
-            .setPositiveButton("Sim") { dialog, posicao ->
+            .setPositiveButton("Sim") { _, _ ->
+                recuperarConsultas()
                 cancelarConsulta(consulta)
-                restartFragment()
             }
-            .setNegativeButton("Não") { dialog, posicao ->
+            .setNegativeButton("Não") { _, _ ->
                 // Lógica para lidar com o não
             }
             .create().show()
@@ -180,10 +162,9 @@ class AgendamentosFragment : Fragment() {
                     .collection("consultas")
                     .document(consulta.id)
                     .update("disponivel", "false")
-                Log.d(TAG, "Consulta cancelada")
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Erro ao atualizar o campo 'disponivel': $exception")
+
+                recuperarConsultas()
+                exibirMensagem("Consulta cancelada")
             }
     }
 }

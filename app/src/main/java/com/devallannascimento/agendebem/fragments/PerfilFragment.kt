@@ -3,6 +3,7 @@ package com.devallannascimento.agendebem.fragments
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +17,6 @@ import com.bumptech.glide.Glide
 import com.devallannascimento.agendebem.R
 import com.devallannascimento.agendebem.databinding.FragmentPerfilBinding
 import com.devallannascimento.agendebem.utils.exibirMensagem
-import com.devallannascimento.agendebem.utils.restartFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -39,13 +39,6 @@ class PerfilFragment : Fragment() {
     }
 
     private var idUsuario: String? = null
-
-    private lateinit var nomeUsuario: String
-    private lateinit var sobrenomeUsuario: String
-    private lateinit var emailUsuario: String
-    private lateinit var cpfUsuario: String
-    private lateinit var nascimentoUsuario: String
-    private lateinit var telefoneUsuario: String
 
     private var temPermissaoGaleria = false
 
@@ -71,31 +64,44 @@ class PerfilFragment : Fragment() {
         this.perfilBinding = FragmentPerfilBinding.inflate(inflater, container, false)
         idUsuario = firebaseAuth.currentUser?.uid
 
-        solicitarPermissao()
+        solicitarPermissoes()
         inicializarEventosClique()
         recuperarDadosUsuario()
 
         return this.binding.root
     }
 
-    private fun solicitarPermissao() {
-        // Verificar se o usuário já tem permissão
-        temPermissaoGaleria = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
+    private fun solicitarPermissoes() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            temPermissaoGaleria = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
 
-        // Se não tiver permissão, solicitar
-        if (!temPermissaoGaleria) {
-            val gerenciadorPermissoes =
-                registerForActivityResult(ActivityResultContracts.RequestPermission()) { resultado ->
-                    temPermissaoGaleria = resultado
+            if (!temPermissaoGaleria) {
+                val gerenciadorPermissoes = registerForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { temPermissao ->
+                    temPermissaoGaleria = temPermissao
                 }
+                gerenciadorPermissoes.launch(Manifest.permission.READ_MEDIA_IMAGES)
+            }
+        } else {
+            temPermissaoGaleria = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
 
-            gerenciadorPermissoes.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (!temPermissaoGaleria) {
+                val gerenciadorPermissoes = registerForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { temPermissao ->
+                    temPermissaoGaleria = temPermissao
+                }
+                gerenciadorPermissoes.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
         }
     }
-
 
 
     private fun inicializarEventosClique() {
@@ -113,15 +119,14 @@ class PerfilFragment : Fragment() {
             if (validarCampos()) {
                 if (idUsuario != null) {
                     val dados = mapOf(
-                        "nome" to nomeUsuario,
-                        "sobrenome" to sobrenomeUsuario,
-                        "email" to emailUsuario,
-                        "cpf" to cpfUsuario,
-                        "nascimento" to nascimentoUsuario,
-                        "telefone" to telefoneUsuario
+                        "nome" to binding.editNome.text.toString().trim(),
+                        "sobrenome" to binding.editSobrenome.text.toString().trim(),
+                        "email" to binding.editEmail.text.toString().trim(),
+                        "cpf" to binding.editCpf.text.toString().trim(),
+                        "nascimento" to binding.editNascimento.text.toString().trim(),
+                        "telefone" to binding.editTelefone.text.toString().trim(),
                     )
                     atualizarDadosPerfil(idUsuario, dados)
-                    restartFragment()
                 } else {
                     exibirMensagem("Preencha todos os campos para atualizar")
                 }
@@ -217,7 +222,6 @@ class PerfilFragment : Fragment() {
                         binding.editNascimento.setText(nascimento)
                         binding.editTelefone.setText(telefone)
 
-                        // Carregar a imagem utilizando Glide
                         Glide.with(this@PerfilFragment)
                             .load(foto)
                             .centerCrop()
@@ -226,7 +230,6 @@ class PerfilFragment : Fragment() {
                             .into(binding.imgPerfil)
                     }
                 } catch (e: Exception) {
-                    // Lidar com exceções, se necessário
                     e.printStackTrace()
                 }
             }

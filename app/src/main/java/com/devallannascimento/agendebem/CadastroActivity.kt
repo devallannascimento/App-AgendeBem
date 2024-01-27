@@ -48,21 +48,17 @@ class CadastroActivity : AppCompatActivity() {
     }
 
     private fun inicializarToolbar() {
-
         val toolbar = binding.includeToolbar.tbPrincipal
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
             title = "Faça o seu cadastro"
-
             setDisplayHomeAsUpEnabled(true)
         }
-
     }
 
     private fun inicializarEventosClique() {
 
         binding.btnCadastrar.setOnClickListener {
-            Log.i(TAG, "inicializarEventosClique: 1")
             if (validarCampos()) {
                 cadastrarUsuario(
                     nomeUsuario,
@@ -74,7 +70,6 @@ class CadastroActivity : AppCompatActivity() {
                     senhaUsuario
                 )
             }
-
         }
 
         binding.textFacaLogin.setOnClickListener {
@@ -82,6 +77,7 @@ class CadastroActivity : AppCompatActivity() {
                 Intent(this, LoginActivity::class.java)
             )
         }
+
     }
 
     private fun cadastrarUsuario(
@@ -93,19 +89,9 @@ class CadastroActivity : AppCompatActivity() {
         telefone: String,
         senha: String
     ) {
-
-        Log.i(TAG, "cadastrarUsuario: 1")
-
         firebaseAuth.createUserWithEmailAndPassword(
             email, senha
         ).addOnSuccessListener { result ->
-
-            Log.i(TAG, "cadastrarUsuario: 2")
-
-            //Salvar dados Firestore
-            /*
-            id, nome, sobrenome, cpf, email, foto
-             */
             val idUsuario = firebaseAuth.currentUser?.uid
             if (idUsuario != null) {
                 val usuario = Usuario(
@@ -113,29 +99,33 @@ class CadastroActivity : AppCompatActivity() {
                 )
                 salvarUsuarioFirestore(usuario)
             }
-
         }.addOnFailureListener { erro ->
             when (erro) {
                 is FirebaseAuthWeakPasswordException -> {
                     erro.printStackTrace()
                     exibirMensagem("Senha muito fraca, digite outra com mais forte")
                 }
+
                 is FirebaseAuthUserCollisionException -> {
                     erro.printStackTrace()
                     exibirMensagem("E-mail já cadastrado")
                 }
+
                 is FirebaseAuthInvalidCredentialsException -> {
                     erro.printStackTrace()
                     exibirMensagem("E-mail invalido, digite um outro e-mail")
                 }
+
                 is FirebaseAuthEmailException -> {
                     erro.printStackTrace()
                     exibirMensagem("Erro ao tentar usar este e-mail, tente com um outro e-mail")
                 }
+
                 is FirebaseNetworkException -> {
                     erro.printStackTrace()
                     exibirMensagem("Erro! Tente novamente")
                 }
+
                 else -> {
                     exibirMensagem("Erro desconhecido")
                 }
@@ -145,9 +135,6 @@ class CadastroActivity : AppCompatActivity() {
     }
 
     private fun salvarUsuarioFirestore(usuario: Usuario) {
-
-        Log.i(TAG, "salvarUsuarioFirestore: 1 ")
-
         firebaseFirestore
             .collection("usuarios")
             .document(usuario.id)
@@ -162,18 +149,17 @@ class CadastroActivity : AppCompatActivity() {
             .addOnFailureListener {
                 exibirMensagem("Erro ao cadastrar usuário")
             }
-
     }
 
     private fun validarCampos(): Boolean {
 
-        nomeUsuario = binding.editNome.text.toString()
-        sobrenomeUsuario = binding.editSobrenome.text.toString()
-        emailUsuario = binding.editEmail.text.toString()
-        cpfUsuario = binding.editCpf.text.toString()
-        nascimentoUsuario = binding.editNascimento.text.toString()
-        telefoneUsuario = binding.editTelefone.text.toString()
-        senhaUsuario = binding.editSenha.text.toString()
+        nomeUsuario = binding.editNome.text.toString().trim()
+        sobrenomeUsuario = binding.editSobrenome.text.toString().trim()
+        emailUsuario = binding.editEmail.text.toString().trim()
+        cpfUsuario = binding.editCpf.text.toString().trim()
+        nascimentoUsuario = binding.editNascimento.text.toString().trim()
+        telefoneUsuario = binding.editTelefone.text.toString().trim()
+        senhaUsuario = binding.editSenha.text.toString().trim()
 
         if (nomeUsuario.isNotEmpty()) {
             binding.textInputNome.error = null
@@ -187,10 +173,10 @@ class CadastroActivity : AppCompatActivity() {
                             binding.textInputNascimento.error = null
                             if (telefoneUsuario.isNotEmpty()) {
                                 binding.textInputTelefone.error = null
-                                if (senhaUsuario.isNotEmpty()){
+                                if (senhaUsuario.isNotEmpty()) {
                                     binding.textInputSenha.error = null
                                     return true
-                                }else{
+                                } else {
                                     binding.textInputSenha.error = "Preencha a sua senha!"
                                     return false
                                 }
