@@ -8,5 +8,6 @@ data class Usuario(
     var cpf: String,
     var nascimento: String,
     var telefone: String,
-    var foto: String = ""
+    var foto: String = "",
+    var fcmToken: String = ""
 )

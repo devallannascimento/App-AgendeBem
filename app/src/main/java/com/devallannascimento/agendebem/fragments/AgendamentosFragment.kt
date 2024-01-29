@@ -2,6 +2,7 @@ package com.devallannascimento.agendebem.fragments
 
 import ConsultasAdapter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.devallannascimento.agendebem.MainActivity.Companion.TAG
 import com.devallannascimento.agendebem.databinding.FragmentAgendamentosBinding
 import com.devallannascimento.agendebem.model.Consulta
 import com.devallannascimento.agendebem.utils.exibirMensagem
@@ -27,11 +29,11 @@ class AgendamentosFragment : Fragment() {
         FirebaseAuth.getInstance()
     }
 
+    private val idUsuario = firebaseAuth.currentUser?.uid
+
     private val firebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-
-    private val idUsuario = firebaseAuth.currentUser?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,14 +47,11 @@ class AgendamentosFragment : Fragment() {
     }
 
     private fun recuperarConsultas() {
-
-        if (idUsuario != null) {
-            val consultasCollection = firebaseFirestore
+        firebaseFirestore
                 .collection("usuarios")
-                .document(idUsuario)
+                .document(idUsuario!!)
                 .collection("consultas")
-
-            consultasCollection.get()
+                .get()
                 .addOnSuccessListener { querySnapshot ->
                     val consultasList = mutableListOf<Consulta>()
 
@@ -76,8 +75,6 @@ class AgendamentosFragment : Fragment() {
                     }
                     inicializarRecyclerView(consultasList)
                 }
-        }
-
     }
 
     private fun inicializarRecyclerView(consultasList: List<Consulta>) {
@@ -149,11 +146,9 @@ class AgendamentosFragment : Fragment() {
     }
 
     private fun cancelarConsulta(consulta: Consulta) {
-        val consultasCollection = firebaseFirestore
+       firebaseFirestore
             .collection("consultas")
-
-        // Atualizar o campo "disponivel" para "false"
-        consultasCollection.document(consulta.id)
+            .document(consulta.id)
             .update("disponivel", "true")
             .addOnSuccessListener {
                 firebaseFirestore
@@ -161,8 +156,7 @@ class AgendamentosFragment : Fragment() {
                     .document(idUsuario!!)
                     .collection("consultas")
                     .document(consulta.id)
-                    .update("disponivel", "false")
-
+                    .delete()
                 recuperarConsultas()
                 exibirMensagem("Consulta cancelada")
             }

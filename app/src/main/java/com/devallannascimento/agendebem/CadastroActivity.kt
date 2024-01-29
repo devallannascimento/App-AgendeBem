@@ -1,10 +1,8 @@
 package com.devallannascimento.agendebem
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.devallannascimento.agendebem.MainActivity.Companion.TAG
+import androidx.appcompat.app.AppCompatActivity
 import com.devallannascimento.agendebem.databinding.ActivityCadastroBinding
 import com.devallannascimento.agendebem.model.Usuario
 import com.devallannascimento.agendebem.utils.exibirMensagem
@@ -91,7 +89,7 @@ class CadastroActivity : AppCompatActivity() {
     ) {
         firebaseAuth.createUserWithEmailAndPassword(
             email, senha
-        ).addOnSuccessListener { result ->
+        ).addOnSuccessListener { _ ->
             val idUsuario = firebaseAuth.currentUser?.uid
             if (idUsuario != null) {
                 val usuario = Usuario(
@@ -171,18 +169,18 @@ class CadastroActivity : AppCompatActivity() {
                         binding.textInputEmail.error = null
                         if (nascimentoUsuario.isNotEmpty()) {
                             binding.textInputNascimento.error = null
-                            if (telefoneUsuario.isNotEmpty()) {
+                            return if (telefoneUsuario.isNotEmpty()) {
                                 binding.textInputTelefone.error = null
                                 if (senhaUsuario.isNotEmpty()) {
                                     binding.textInputSenha.error = null
-                                    return true
+                                    true
                                 } else {
                                     binding.textInputSenha.error = "Preencha a sua senha!"
-                                    return false
+                                    false
                                 }
                             } else {
                                 binding.textInputTelefone.error = "Preencha o seu telefone!"
-                                return false
+                                false
                             }
                         } else {
                             binding.textInputNascimento.error = "Preencha o seu nascimento!"

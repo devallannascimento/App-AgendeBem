@@ -48,6 +48,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")//auth Firebase
     implementation("com.google.firebase:firebase-firestore-ktx")//firestore Firebase
     implementation("com.google.firebase:firebase-storage-ktx")//storage Firebase
+    implementation("com.google.firebase:firebase-messaging:23.4.0")//cloud messaging
 
     //Biblioteca Picasso
     implementation("com.squareup.picasso:picasso:2.8")

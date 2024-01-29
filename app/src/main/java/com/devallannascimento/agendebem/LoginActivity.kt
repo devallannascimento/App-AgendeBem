@@ -1,16 +1,13 @@
 package com.devallannascimento.agendebem
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.devallannascimento.agendebem.databinding.ActivityLoginBinding
 import com.devallannascimento.agendebem.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.google.firebase.firestore.auth.FirebaseAuthCredentialsProvider
 
 class LoginActivity : AppCompatActivity() {
 
@@ -35,7 +32,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        verificarUsuarioLogado()
+            verificarUsuarioLogado()
     }
 
     private fun verificarUsuarioLogado() {
@@ -57,10 +54,10 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.textRecuperar.setOnClickListener {
-            val email = binding.editEmail.text.toString().trim()
+            val email = binding.editEmail.text.toString()
             if (email.isNotEmpty()) {
                 binding.textInputEmail.error = null
-                enviarEmailRecuperacao(email)
+                //enviarEmailRecuperacao(email)
             } else {
                 binding.textInputEmail.error = "Preencha o seu email!"
                 exibirMensagem("Digite um endereço de e-mail válido.")
@@ -101,17 +98,10 @@ class LoginActivity : AppCompatActivity() {
                     error.printStackTrace()
                     exibirMensagem("E-mail não cadastrado")
                 }
-
-                is FirebaseAuthInvalidUserException -> {
-                    error.printStackTrace()
-                    exibirMensagem("E-mail não cadastrado")
-                }
-
                 is FirebaseAuthInvalidCredentialsException -> {
                     error.printStackTrace()
                     exibirMensagem("E-mail ou senha estão incorretos!")
                 }
-
                 else -> {
                     exibirMensagem("Erro desconhecido")
                 }
@@ -124,18 +114,18 @@ class LoginActivity : AppCompatActivity() {
         email = binding.editEmail.text.toString()
         senha = binding.editSenha.text.toString()
 
-        if (email.isNotEmpty()) {
+        return if (email.isNotEmpty()) {
             binding.textInputEmail.error = null
             if (senha.isNotEmpty()) {
                 binding.textInputSenha.error = null
-                return true
+                true
             } else {
                 binding.textInputSenha.error = "Preencha com a sua!"
-                return false
+                false
             }
         } else {
             binding.textInputEmail.error = "Preencha com o seu email!"
-            return false
+            false
         }
 
     }

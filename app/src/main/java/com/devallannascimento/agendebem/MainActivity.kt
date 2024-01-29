@@ -1,13 +1,17 @@
 package com.devallannascimento.agendebem
 
-import android.Manifest
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +22,11 @@ import com.devallannascimento.agendebem.databinding.ActivityMainBinding
 import com.devallannascimento.agendebem.fragments.AgendamentosFragment
 import com.devallannascimento.agendebem.fragments.AgendarFragment
 import com.devallannascimento.agendebem.fragments.PerfilFragment
+import com.devallannascimento.agendebem.utils.exibirMensagem
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
     
@@ -34,7 +42,18 @@ class MainActivity : AppCompatActivity() {
         FirebaseAuth.getInstance()
     }
 
+    private val firebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
+
+    private val firebaseMessaging by lazy {
+        FirebaseMessaging.getInstance()
+    }
+
+    val idUsuario = firebaseAuth.currentUser?.uid.toString()
+
     private var temPermissaoGaleria = false
+    private var temPermissaoNotificacoes = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,38 +62,75 @@ class MainActivity : AppCompatActivity() {
         inicializarToolbar()
         inicializarNavbar()
         solicitarPermissoes()
+
+        messaging()
         loadFragment(AgendarFragment())
 
     }
 
     private fun solicitarPermissoes() {
+
+        val listaPermissoesNegadas = mutableListOf<String>()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             temPermissaoGaleria = ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_MEDIA_IMAGES
+                READ_MEDIA_IMAGES
             ) == PackageManager.PERMISSION_GRANTED
 
+            temPermissaoNotificacoes = ContextCompat.checkSelfPermission(
+                this,
+                POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!temPermissaoNotificacoes) {
+                listaPermissoesNegadas.add(POST_NOTIFICATIONS)
+            }
+
             if (!temPermissaoGaleria) {
+                listaPermissoesNegadas.add(READ_MEDIA_IMAGES)
+            }
+            if (listaPermissoesNegadas.isNotEmpty()) {
                 val gerenciadorPermissoes = registerForActivityResult(
-                    ActivityResultContracts.RequestPermission()
-                ) { temPermissao ->
-                    temPermissaoGaleria = temPermissao
+                    ActivityResultContracts.RequestMultiplePermissions()
+                ) { permissoes ->
+                    temPermissaoGaleria = permissoes[READ_MEDIA_IMAGES]
+                        ?: temPermissaoGaleria
+
+                    temPermissaoNotificacoes = permissoes[POST_NOTIFICATIONS]
+                            ?: temPermissaoNotificacoes
                 }
-                gerenciadorPermissoes.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                gerenciadorPermissoes.launch(listaPermissoesNegadas.toTypedArray())
             }
         } else {
             temPermissaoGaleria = ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
 
             if (!temPermissaoGaleria) {
+                listaPermissoesNegadas.add(READ_EXTERNAL_STORAGE)
+            }
+            temPermissaoNotificacoes = ContextCompat.checkSelfPermission(
+                this,
+                "com.google.android.c2dm.permission.RECEIVE"
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!temPermissaoNotificacoes) {
+                listaPermissoesNegadas.add("com.google.android.c2dm.permission.RECEIVE")
+            }
+            if (listaPermissoesNegadas.isNotEmpty()) {
                 val gerenciadorPermissoes = registerForActivityResult(
-                    ActivityResultContracts.RequestPermission()
-                ) { temPermissao ->
-                    temPermissaoGaleria = temPermissao
+                    ActivityResultContracts.RequestMultiplePermissions()
+                ) { permissoes ->
+                    temPermissaoGaleria = permissoes[READ_EXTERNAL_STORAGE]
+                        ?: temPermissaoGaleria
+
+                    temPermissaoNotificacoes =
+                        permissoes["com.google.android.c2dm.permission.RECEIVE"]
+                            ?: temPermissaoNotificacoes
                 }
-                gerenciadorPermissoes.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                gerenciadorPermissoes.launch(listaPermissoesNegadas.toTypedArray())
             }
         }
     }
@@ -147,6 +203,26 @@ class MainActivity : AppCompatActivity() {
                     Intent(this, LoginActivity::class.java)
                 )
             }.create().show()
+    }
+
+    private fun messaging(){
+        firebaseMessaging
+            .token
+            .addOnCompleteListener{task ->
+                if (task.isSuccessful){
+                    val token = task.result
+                    firebaseFirestore
+                        .collection("usuarios")
+                        .document(idUsuario)
+                        .update("token",token)
+                        .addOnSuccessListener {
+                            exibirMensagem("Sucesso ao atualizar FCMToken")
+                        }.addOnFailureListener {exception ->
+                            exibirMensagem("Erro ao atualizar FCMToken")
+                            Log.i(TAG, "messaging: $exception")
+                        }
+                }
+            }
     }
 
 }

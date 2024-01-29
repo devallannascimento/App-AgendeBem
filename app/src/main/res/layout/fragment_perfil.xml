@@ -118,7 +118,7 @@
                 app:mask="___.___.___-__"
                 app:maskCharacter="_"
                 app:maskStyle="normal"
-                android:maxLength="13"/>
+                android:maxLength="14"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
