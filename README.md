@@ -62,6 +62,16 @@ O projeto está estruturado em diferentes partes:
      - [Glide Documentation](https://bumptech.github.io/glide/)
      - Utilizada para carregamento eficiente de imagens, especialmente para fotos de usuários.
 
+## Pré-requisitos
+
+Certifique-se de ter o [Android Studio](https://developer.android.com/studio) instalado no seu ambiente de desenvolvimento.
+
+## Executando o Projeto
+
+1. Clone o repositório para o seu ambiente local.
+2. Abra o projeto no Android Studio.
+3. Execute o aplicativo em um emulador ou dispositivo Android.
+
 ## License
 
 ```
