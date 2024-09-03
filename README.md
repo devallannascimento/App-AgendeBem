@@ -2,6 +2,10 @@
 
 Este projeto é um aplicativo Android desenvolvido em Kotlin no Android Studio, utilizando Firebase para autenticação, armazenamento de dados e notificações push. As bibliotecas [Maskara](https://github.com/santalu/maskara) e [Glide](https://bumptech.github.io/glide/) são utilizadas para máscara de EditText e carregamento de imagens, respectivamente.
 
+| Login        | Agendar   | Perfil    |
+| ------------- | ------------- | ------------- |
+| <img src="./media/login.png" alt="login" title="Login" />  | <img src="./media/agendar.png" alt="agendar" title="Agendar" /> | <img src="./media/perfil.png" alt="perfil" title="Perfil" />  |
+
 ### Recursos Principais
 
 - **Autenticação e Recuperação de Senha**
