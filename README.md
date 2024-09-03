@@ -4,7 +4,7 @@ Este projeto é um aplicativo Android desenvolvido em Kotlin no Android Studio, 
 
 | Login        | Agendar   | Perfil    |
 | ------------- | ------------- | ------------- |
-| <img src="./media/login.png" alt="login" title="Login" width="100" height="100" />  | <img src="./media/agendar.png" alt="agendar" title="Agendar" width="100" height="100" /> | <img src="./media/perfil.png" alt="perfil" title="Perfil" width="100" height="100" />  |
+| <img src="./media/login.png" alt="login" title="Login" />  | <img src="./media/agendar.png" alt="agendar" title="Agendar" /> | <img src="./media/perfil.png" alt="perfil" title="Perfil" />  |
 
 ### Recursos Principais
 
