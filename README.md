@@ -1,4 +1,4 @@
-# AgendaBem
+# AgendeBem
 
 Este projeto é um aplicativo Android desenvolvido em Kotlin no Android Studio, utilizando Firebase para autenticação, armazenamento de dados e notificações push. As bibliotecas [Maskara](https://github.com/santalu/maskara) e [Glide](https://bumptech.github.io/glide/) são utilizadas para máscara de EditText e carregamento de imagens, respectivamente.
 
